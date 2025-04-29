@@ -1,0 +1,271 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Dökümanları</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #1e1e1e;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background-color: #252526;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #3c3c3c;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logo a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .search-box {
+      flex-grow: 1;
+      max-width: 400px;
+      margin: 0 20px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #3c3c3c;
+      color: #ffffff;
+    }
+
+    .user-login a {
+      color: #ffffff;
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      flex: 1;
+    }
+
+    /* Sidebar (Tree View) */
+    .sidebar {
+      width: 250px;
+      background-color: #252526;
+      padding: 20px;
+      border-right: 1px solid #3c3c3c;
+      overflow-y: auto;
+    }
+
+    .tree-view ul {
+      list-style: none;
+    }
+
+    .tree-view li {
+      margin: 10px 0;
+    }
+
+    .tree-view a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .tree-view a:hover {
+      color: #1e90ff;
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .content h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .terminal {
+      background-color: #252526;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+      position: relative;
+    }
+
+    .terminal code {
+      font-family: 'Consolas', monospace;
+      color: #dcdcdc;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #3c3c3c;
+      color: #ffffff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #252526;
+      padding: 15px 20px;
+      text-align: center;
+      border-top: 1px solid #3c3c3c;
+    }
+
+    footer a {
+      color: #ffffff;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #1e90ff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <a href="/">DevOps Dökümanları</a>
+    </div>
+    <div class="search-box">
+      <input type="text" placeholder="Döküman ara...">
+    </div>
+    <div class="user-login">
+      <a href="/login">Giriş Yap</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    <!-- Sidebar (Tree View) -->
+    <nav class="sidebar">
+      <div class="tree-view">
+        <ul>
+          <li><a href="#">Docker</a>
+            <ul>
+              <li><a href="#">Kurulum</a></li>
+              <li><a href="#">Komutlar</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Kubernetes</a>
+            <ul>
+              <li><a href="#">Kurulum</a></li>
+              <li><a href="#">Temel Kavramlar</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Ansible</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="content">
+      <h1>Docker Kurulumu</h1>
+      <p>Bu dökümanda, Ubuntu sunucusuna Docker'ın nasıl kurulacağını adım adım açıklayacağız.</p>
+      <div class="terminal">
+        <code>
+sudo apt-get update
+sudo apt-get install -y docker.io
+        </code>
+        <button class="copy-btn">Kopyala</button>
+      </div>
+      <p>Kurulumdan sonra Docker servisini başlatmak için:</p>
+      <div class="terminal">
+        <code>
+sudo systemctl start docker
+sudo systemctl enable docker
+        </code>
+        <button class="copy-btn">Kopyala</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <a href="https://twitter.com">Twitter</a>
+    <a href="https://linkedin.com">LinkedIn</a>
+    <a href="https://github.com">GitHub</a>
+  </footer>
+
+  <script>
+    // Kopyala butonu için basit bir işlev
+    document.querySelectorAll('.copy-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const code = button.previousElementSibling.textContent;
+        navigator.clipboard.writeText(code).then(() => {
+          button.textContent = 'Kopyalandı!';
+          setTimeout(() => button.textContent = 'Kopyala', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
