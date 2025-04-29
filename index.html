@@ -84,11 +84,22 @@
     }
 
     .tree-view li {
-      margin: 10px 0;
+      margin: 8px 0;
     }
 
-    .tree-view a {
+    .tree-view .folder > a {
+      display: flex;
+      align-items: center;
       color: #ffffff;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tree-view .file > a {
+      display: flex;
+      align-items: center;
+      color: #dcdcdc;
       text-decoration: none;
       cursor: pointer;
     }
@@ -97,8 +108,38 @@
       color: #1e90ff;
     }
 
-    .tree-view .folder > a {
-      font-weight: bold;
+    .tree-view .folder-icon::before {
+      content: '📁';
+      margin-right: 8px;
+    }
+
+    .tree-view .file-icon::before {
+      content: '📄';
+      margin-right: 8px;
+    }
+
+    .tree-view .toggle-icon::before {
+      content: '▶';
+      margin-right: 8px;
+      transition: transform 0.2s;
+    }
+
+    .tree-view .open .toggle-icon::before {
+      content: '▼';
+      transform: rotate(90deg);
+    }
+
+    .tree-view ul {
+      padding-left: 20px;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .tree-view .open > ul {
+      max-height: 1000px; /* Yeterince büyük bir değer */
+      opacity: 1;
     }
 
     /* Content Area */
@@ -208,15 +249,23 @@
         function renderTree(nodes, parentUl) {
           nodes.forEach(node => {
             const li = document.createElement('li');
+            li.classList.add(node.type);
+
             if (node.type === 'folder') {
-              li.classList.add('folder');
-              li.innerHTML = `<a>${node.name}</a>`;
+              li.innerHTML = `<a><span class="toggle-icon"></span><span class="folder-icon"></span>${node.name}</a>`;
               const ul = document.createElement('ul');
               renderTree(node.children, ul);
               li.appendChild(ul);
+
+              // Açılır/kapanır işlevsellik
+              li.querySelector('a').addEventListener('click', (e) => {
+                e.preventDefault();
+                li.classList.toggle('open');
+              });
             } else {
-              li.innerHTML = `<a onclick="loadMarkdown('${node.path}')">${node.name}</a>`;
+              li.innerHTML = `<a onclick="loadMarkdown('${node.path}')"><span class="file-icon"></span>${node.name}</a>`;
             }
+
             parentUl.appendChild(li);
           });
         }
