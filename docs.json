@@ -1,8 +1,25 @@
 [
   {
-    "type": "file",
-    "name": "docker-install",
-    "path": "docs/docker-install.md"
+    "type": "folder",
+    "name": "Ansible",
+    "children": [
+      {
+        "type": "file",
+        "name": "Ansible Kurulumu",
+        "path": "docs/Ansible/Ansible Kurulumu.md"
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "Docker",
+    "children": [
+      {
+        "type": "file",
+        "name": "docker-install",
+        "path": "docs/Docker/docker-install.md"
+      }
+    ]
   },
   {
     "type": "folder",
@@ -10,8 +27,8 @@
     "children": [
       {
         "type": "file",
-        "name": "docker-install",
-        "path": "docs/Kubernetes/docker-install.md"
+        "name": "Kubernetes-install",
+        "path": "docs/Kubernetes/Kubernetes-install.md"
       }
     ]
   }
