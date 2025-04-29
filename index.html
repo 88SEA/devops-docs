@@ -21,7 +21,6 @@
       min-height: 100vh;
     }
 
-    /* Header */
     header {
       background-color: #252526;
       padding: 15px 20px;
@@ -64,13 +63,11 @@
       border-radius: 4px;
     }
 
-    /* Main Layout */
     .main-container {
       display: flex;
       flex: 1;
     }
 
-    /* Sidebar (Tree View) */
     .sidebar {
       width: 250px;
       background-color: #252526;
@@ -118,18 +115,15 @@
       margin-right: 8px;
     }
 
-    .tree-view .toggle-icon::before {
-      content: '▶';
-      margin-right: 8px;
-      transition: transform 0.2s;
+    .tree-view .toggle-icon {
+      display: inline-block;
+      width: 16px;
+      text-align: center;
+      transition: transform 0.3s ease;
+      margin-right: 5px;
     }
 
-    .tree-view .open .toggle-icon::before {
-      content: '▼';
-      transform: rotate(90deg);
-    }
-
-    .tree-view ul {
+    .tree-view li > ul {
       padding-left: 20px;
       transition: max-height 0.3s ease, opacity 0.3s ease;
       max-height: 0;
@@ -137,12 +131,19 @@
       overflow: hidden;
     }
 
-    .tree-view .open > ul {
-      max-height: 1000px; /* Yeterince büyük bir değer */
+    .tree-view li.open > ul {
+      max-height: 1000px;
       opacity: 1;
     }
 
-    /* Content Area */
+    .tree-view li.open > a .toggle-icon::before {
+      content: '▼';
+    }
+
+    .tree-view li:not(.open) > a .toggle-icon::before {
+      content: '▶';
+    }
+
     .content {
       flex: 1;
       padding: 20px;
@@ -179,7 +180,6 @@
       cursor: pointer;
     }
 
-    /* Footer */
     footer {
       background-color: #252526;
       padding: 15px 20px;
@@ -199,7 +199,6 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header>
     <div class="logo">
       <a href="/">DevOps Dökümanları</a>
@@ -212,25 +211,21 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <div class="main-container">
-    <!-- Sidebar (Tree View) -->
     <nav class="sidebar">
       <div class="tree-view">
         <ul id="tree-view">
-          <!-- Dinamik olarak doldurulacak -->
+          <!-- Dinamik içerik -->
         </ul>
       </div>
     </nav>
 
-    <!-- Content Area -->
     <div class="content" id="content">
       <h1>Hoş Geldiniz</h1>
       <p>Lütfen soldaki menüden bir döküman seçin.</p>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <a href="https://twitter.com">Twitter</a>
     <a href="https://linkedin.com">LinkedIn</a>
@@ -238,7 +233,6 @@
   </footer>
 
   <script>
-    // Tree view oluştur
     async function buildTreeView() {
       try {
         const response = await fetch('docs.json');
@@ -252,18 +246,25 @@
             li.classList.add(node.type);
 
             if (node.type === 'folder') {
-              li.innerHTML = `<a><span class="toggle-icon"></span><span class="folder-icon"></span>${node.name}</a>`;
+              li.innerHTML = `
+                <a>
+                  <span class="toggle-icon"></span>
+                  <span class="folder-icon"></span>${node.name}
+                </a>`;
               const ul = document.createElement('ul');
               renderTree(node.children, ul);
               li.appendChild(ul);
 
-              // Açılır/kapanır işlevsellik
               li.querySelector('a').addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 li.classList.toggle('open');
               });
             } else {
-              li.innerHTML = `<a onclick="loadMarkdown('${node.path}')"><span class="file-icon"></span>${node.name}</a>`;
+              li.innerHTML = `
+                <a onclick="loadMarkdown('${node.path}')">
+                  <span class="file-icon"></span>${node.name}
+                </a>`;
             }
 
             parentUl.appendChild(li);
@@ -276,7 +277,6 @@
       }
     }
 
-    // Markdown dosyasını yükle ve render et
     async function loadMarkdown(path) {
       try {
         const response = await fetch(path);
@@ -285,7 +285,6 @@
         const content = document.getElementById('content');
         content.innerHTML = marked.parse(markdown);
 
-        // Kod bloklarına kopyalama butonu ekle
         content.querySelectorAll('pre code').forEach(codeBlock => {
           const pre = codeBlock.parentElement;
           pre.classList.add('terminal');
@@ -305,7 +304,6 @@
       }
     }
 
-    // Sayfa yüklendiğinde tree view'u oluştur
     window.onload = buildTreeView;
   </script>
 </body>
