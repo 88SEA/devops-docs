@@ -1,0 +1,18 @@
+[
+  {
+    "type": "file",
+    "name": "docker-install",
+    "path": "docs/docker-install.md"
+  },
+  {
+    "type": "folder",
+    "name": "Kubernetes",
+    "children": [
+      {
+        "type": "file",
+        "name": "docker-install",
+        "path": "docs/Kubernetes/docker-install.md"
+      }
+    ]
+  }
+]
