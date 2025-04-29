@@ -28,6 +28,10 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid #3c3c3c;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 10;
     }
 
     .logo {
@@ -66,6 +70,8 @@
     .main-container {
       display: flex;
       flex: 1;
+      margin-top: 65px; /* Header yüksekliği kadar boşluk */
+      min-height: calc(100vh - 65px - 50px); /* Header ve footer hariç */
     }
 
     .sidebar {
@@ -73,7 +79,11 @@
       background-color: #252526;
       padding: 20px;
       border-right: 1px solid #3c3c3c;
+      position: fixed;
+      top: 65px; /* Header yüksekliği */
+      bottom: 50px; /* Footer yüksekliği */
       overflow-y: auto;
+      z-index: 5;
     }
 
     .tree-view ul {
@@ -147,6 +157,7 @@
     .content {
       flex: 1;
       padding: 20px;
+      margin-left: 250px; /* Sidebar genişliği */
     }
 
     .content h1 {
@@ -185,6 +196,10 @@
       padding: 15px 20px;
       text-align: center;
       border-top: 1px solid #3c3c3c;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 10;
     }
 
     footer a {
