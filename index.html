@@ -97,6 +97,10 @@
       color: #1e90ff;
     }
 
+    .tree-view .folder > a {
+      font-weight: bold;
+    }
+
     /* Content Area */
     .content {
       flex: 1;
@@ -193,39 +197,34 @@
   </footer>
 
   <script>
-    // Markdown dosyalarının listesi (örnek)
-    const docs = [
-      { path: 'docs/docker-install.md', title: 'Docker Kurulumu', category: 'Docker' },
-      { path: 'docs/kubernetes-install.md', title: 'Kubernetes Kurulumu', category: 'Kubernetes' },
-      { path: 'docs/ansible-intro.md', title: 'Ansible Tanıtım', category: 'Ansible' }
-    ];
-
     // Tree view oluştur
-    function buildTreeView() {
-      const treeView = document.getElementById('tree-view');
-      const categories = {};
+    async function buildTreeView() {
+      try {
+        const response = await fetch('docs.json');
+        if (!response.ok) throw new Error('docs.json bulunamadı');
+        const docs = await response.json();
+        const treeView = document.getElementById('tree-view');
 
-      // Kategorilere göre gruplama
-      docs.forEach(doc => {
-        if (!categories[doc.category]) {
-          categories[doc.category] = [];
+        function renderTree(nodes, parentUl) {
+          nodes.forEach(node => {
+            const li = document.createElement('li');
+            if (node.type === 'folder') {
+              li.classList.add('folder');
+              li.innerHTML = `<a>${node.name}</a>`;
+              const ul = document.createElement('ul');
+              renderTree(node.children, ul);
+              li.appendChild(ul);
+            } else {
+              li.innerHTML = `<a onclick="loadMarkdown('${node.path}')">${node.name}</a>`;
+            }
+            parentUl.appendChild(li);
+          });
         }
-        categories[doc.category].push(doc);
-      });
 
-      // Tree view HTML'i oluştur
-      Object.keys(categories).forEach(category => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a>${category}</a>`;
-        const ul = document.createElement('ul');
-        categories[category].forEach(doc => {
-          const docLi = document.createElement('li');
-          docLi.innerHTML = `<a onclick="loadMarkdown('${doc.path}')">${doc.title}</a>`;
-          ul.appendChild(docLi);
-        });
-        li.appendChild(ul);
-        treeView.appendChild(li);
-      });
+        renderTree(docs, treeView);
+      } catch (error) {
+        console.error('Tree view oluşturulamadı:', error);
+      }
     }
 
     // Markdown dosyasını yükle ve render et
