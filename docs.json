@@ -7,6 +7,11 @@
         "type": "file",
         "name": "Ansible Kurulumu",
         "path": "docs/Ansible/Ansible Kurulumu.md"
+      },
+      {
+        "type": "file",
+        "name": "Ansile ile Playbooks hHazırlama",
+        "path": "docs/Ansible/Ansile ile Playbooks hHazırlama.md"
       }
     ]
   },
