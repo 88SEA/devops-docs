@@ -43,6 +43,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DevOps Dökümanları</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/marked.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -128,6 +129,7 @@
     .tree-view a {
       color: #ffffff;
       text-decoration: none;
+      cursor: pointer;
     }
 
     .tree-view a:hover {
@@ -151,11 +153,12 @@
       border-radius: 4px;
       margin: 10px 0;
       position: relative;
-    }
-
-    .terminal code {
       font-family: 'Consolas', monospace;
       color: #dcdcdc;
+    }
+
+    .terminal pre {
+      margin: 0;
     }
 
     .copy-btn {
@@ -208,43 +211,16 @@
     <!-- Sidebar (Tree View) -->
     <nav class="sidebar">
       <div class="tree-view">
-        <ul>
-          <li><a href="#">Docker</a>
-            <ul>
-              <li><a href="#">Kurulum</a></li>
-              <li><a href="#">Komutlar</a></li>
-            </ul>
-          </li>
-          <li><a href="#">Kubernetes</a>
-            <ul>
-              <li><a href="#">Kurulum</a></li>
-              <li><a href="#">Temel Kavramlar</a></li>
-            </ul>
-          </li>
-          <li><a href="#">Ansible</a></li>
+        <ul id="tree-view">
+          <!-- Dinamik olarak doldurulacak -->
         </ul>
       </div>
     </nav>
 
     <!-- Content Area -->
-    <div class="content">
-      <h1>Docker Kurulumu</h1>
-      <p>Bu dökümanda, Ubuntu sunucusuna Docker'ın nasıl kurulacağını adım adım açıklayacağız.</p>
-      <div class="terminal">
-        <code>
-sudo apt-get update
-sudo apt-get install -y docker.io
-        </code>
-        <button class="copy-btn">Kopyala</button>
-      </div>
-      <p>Kurulumdan sonra Docker servisini başlatmak için:</p>
-      <div class="terminal">
-        <code>
-sudo systemctl start docker
-sudo systemctl enable docker
-        </code>
-        <button class="copy-btn">Kopyala</button>
-      </div>
+    <div class="content" id="content">
+      <h1>Hoş Geldiniz</h1>
+      <p>Lütfen soldaki menüden bir döküman seçin.</p>
     </div>
   </div>
 
@@ -256,16 +232,72 @@ sudo systemctl enable docker
   </footer>
 
   <script>
-    // Kopyala butonu için basit bir işlev
-    document.querySelectorAll('.copy-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const code = button.previousElementSibling.textContent;
-        navigator.clipboard.writeText(code).then(() => {
-          button.textContent = 'Kopyalandı!';
-          setTimeout(() => button.textContent = 'Kopyala', 2000);
-        });
+    // Markdown dosyalarının listesi (örnek)
+    const docs = [
+      { path: 'docs/docker-install.md', title: 'Docker Kurulumu', category: 'Docker' },
+      { path: 'docs/kubernetes-install.md', title: 'Kubernetes Kurulumu', category: 'Kubernetes' },
+      { path: 'docs/ansible-intro.md', title: 'Ansible Tanıtım', category: 'Ansible' }
+    ];
+
+    // Tree view oluştur
+    function buildTreeView() {
+      const treeView = document.getElementById('tree-view');
+      const categories = {};
+
+      // Kategorilere göre gruplama
+      docs.forEach(doc => {
+        if (!categories[doc.category]) {
+          categories[doc.category] = [];
+        }
+        categories[doc.category].push(doc);
       });
-    });
+
+      // Tree view HTML'i oluştur
+      Object.keys(categories).forEach(category => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a>${category}</a>`;
+        const ul = document.createElement('ul');
+        categories[category].forEach(doc => {
+          const docLi = document.createElement('li');
+          docLi.innerHTML = `<a onclick="loadMarkdown('${doc.path}')">${doc.title}</a>`;
+          ul.appendChild(docLi);
+        });
+        li.appendChild(ul);
+        treeView.appendChild(li);
+      });
+    }
+
+    // Markdown dosyasını yükle ve render et
+    async function loadMarkdown(path) {
+      try {
+        const response = await fetch(path);
+        if (!response.ok) throw new Error('Dosya bulunamadı');
+        const markdown = await response.text();
+        const content = document.getElementById('content');
+        content.innerHTML = marked.parse(markdown);
+
+        // Kod bloklarına kopyalama butonu ekle
+        content.querySelectorAll('pre code').forEach(codeBlock => {
+          const pre = codeBlock.parentElement;
+          pre.classList.add('terminal');
+          const button = document.createElement('button');
+          button.classList.add('copy-btn');
+          button.textContent = 'Kopyala';
+          button.addEventListener('click', () => {
+            navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+              button.textContent = 'Kopyalandı!';
+              setTimeout(() => button.textContent = 'Kopyala', 2000);
+            });
+          });
+          pre.appendChild(button);
+        });
+      } catch (error) {
+        document.getElementById('content').innerHTML = '<h1>Hata</h1><p>Döküman yüklenemedi.</p>';
+      }
+    }
+
+    // Sayfa yüklendiğinde tree view'u oluştur
+    window.onload = buildTreeView;
   </script>
 </body>
 </html>
