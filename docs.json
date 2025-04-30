@@ -10,7 +10,7 @@
       },
       {
         "type": "file",
-        "name": "Ansile ile Playbooks Oluşturma",
+        "name": "Ansile ile Playbooks hHazırlama",
         "path": "docs/Ansible/Ansile ile Playbooks hHazırlama.md"
       }
     ]
@@ -34,6 +34,17 @@
         "type": "file",
         "name": "Kubernetes-install",
         "path": "docs/Kubernetes/Kubernetes-install.md"
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "MongoDB",
+    "children": [
+      {
+        "type": "file",
+        "name": "MongoDB on Ubuntu 22.04",
+        "path": "docs/MongoDB/MongoDB on Ubuntu 22.04.md"
       }
     ]
   }
